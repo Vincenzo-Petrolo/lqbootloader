@@ -37,27 +37,28 @@ CODE_SEG equ gdt_code - gdt_start
 DATA_SEG equ gdt_data - gdt_start
 
 bits 32
-boot2:
-	mov ax, DATA_SEG
-	mov ds, ax
-	mov es, ax
-	mov fs, ax
-	mov gs, ax
-	mov ss, ax
-	mov esi,hello
+
+printString:
 	mov ebx,0xb8000
-.loop:
+printStringIn:
 	lodsb
 	or al,al
-	jz halt
+	jz printStringOut
 	or eax,0x0100
 	mov word [ebx], ax
 	add ebx,2
-	jmp .loop
+	jmp printStringIn
+printStringOut:
+    ret
+
+boot2:
+	mov esi,hello
+    call printString
 halt:
 	cli
 	hlt
-hello: db "Hello world!",0
+
+hello: db "Welcome to lqbootloader",0
 
 times 510 - ($-$$) db 0
 dw 0xaa55
