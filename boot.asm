@@ -2,10 +2,10 @@ section .boot
 bits 16
 global boot
 boot:
-	mov ax, 0x2401
+	mov ax, 0x2401 ; enabling A20 line
 	int 0x15
 
-	mov ax, 0x3
+	mov ax, 0x3 ; enabling VGA
 	int 0x10
 
 	mov [disk],dl
@@ -30,7 +30,7 @@ boot:
 	mov gs, ax
 	mov ss, ax
 	jmp CODE_SEG:boot2
-gdt_start:
+gdt_start: ; global descriptor table declaration
 	dq 0x0
 gdt_code:
 	dw 0xFFFF
@@ -59,19 +59,7 @@ times 510 - ($-$$) db 0
 dw 0xaa55
 copy_target:
 bits 32
-	hello: db "Hello more than 512 bytes world!!",0
 boot2:
-	mov esi,hello
-	mov ebx,0xb8000
-.loop:
-	lodsb
-	or al,al
-	jz halt
-	or eax,0x0F00
-	mov word [ebx], ax
-	add ebx,2
-	jmp .loop
-halt:
 	mov esp,kernel_stack_top
 	extern kmain
 	call kmain
